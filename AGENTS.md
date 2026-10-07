@@ -1,10 +1,8 @@
-# AGENTS — Contracts
+# AGENTS — Kafka
 
-Repositorio canónico de fronteras QUICKPATCH.
-
-- `openapi/`: REST/OpenAPI.
-- `events/`: Kafka/JSON Schema.
-- Todo cambio identifica proveedor/productor y consumidores.
-- Clasificar compatibilidad.
-- Breaking changes requieren versionamiento explícito.
+- `events/`: esquemas JSON de los eventos (fuente de verdad).
+- `topics/topics.yaml`: un topic por eventType.
+- `deploy/`: despliegue de Kafka (DevOps).
+- Todo cambio identifica productor y consumidores, y clasifica compatibilidad.
+- Breaking changes requieren una versión nueva del evento.
 - No incluir lógica de negocio.

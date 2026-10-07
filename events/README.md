@@ -1,6 +1,6 @@
 # Contratos de eventos Kafka
 
-Fuente de verdad de los eventos compartidos entre microservicios.
+Fuente de verdad de los eventos compartidos entre microservicios. Cada evento tiene además su topic en [`topics/topics.yaml`](../topics/topics.yaml).
 
 Cada evento debe documentar:
 

@@ -1,5 +1,8 @@
-# CI de quickpatch-contracts. Copiar en el repo como .github/workflows/ci.yml.
-# Valida los contratos en cada PR y push, y la forma de los tags de versión (vMAJOR.MINOR.PATCH).
+# CI de quickpatch-kafka: autocontenido, sin workflows de otros repositorios (SCRUM-337).
+#   CTR-004 y CTR-005 → AJV compila cada esquema de events/
+#   topics            → topics/topics.yaml y events/ están alineados
+#   compatibilidad    → en PR, rechaza cambios incompatibles frente a la rama base
+#   CTR-006           → los tags deben tener la forma vMAJOR.MINOR.PATCH
 name: CI
 
 on:
@@ -13,32 +16,69 @@ permissions:
   contents: read
 
 jobs:
-  contratos:
-    uses: ARQUI-202630/quickpatch-infrastructure/.github/workflows/ci-contratos.yml@main
+  eventos:
+    name: Esquemas, topics y versión
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  breaking-openapi:
-    if: github.event_name == 'pull_request'
-    uses: ARQUI-202630/quickpatch-infrastructure/.github/workflows/breaking-openapi.yml@main
+      - name: Tag con versión semántica (CTR-006)
+        if: github.ref_type == 'tag'
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::El tag '$TAG' no sigue vMAJOR.MINOR.PATCH (CTR-006)."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: AJV sobre events/ (CTR-004 y CTR-005)
+        run: npx -y -p ajv-cli@5 -p ajv-formats@3 ajv compile --spec=draft7 -c ajv-formats --strict=false -s "events/*.json"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Topics alineados con los esquemas
+        run: |
+          pip install -q pyyaml==6.0.2
+          python scripts/check-topics.py
+
+      - name: Compatibilidad con la rama base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          git fetch origin "$BASE"
+          python scripts/check-compat.py "origin/$BASE"
 
   dependency-review:
+    name: dependency-review
     if: github.event_name == 'pull_request'
-    uses: ARQUI-202630/quickpatch-infrastructure/.github/workflows/dependency-review.yml@main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
 
   quality-gate:
     name: quality-gate
     if: always()
-    needs: [contratos, breaking-openapi, dependency-review]
+    needs: [eventos, dependency-review]
     runs-on: ubuntu-latest
-
     steps:
       - name: Validar compuertas
         env:
-          CONTRACT_RESULT: ${{ needs.contratos.result }}
-          BREAK_RESULT: ${{ needs.breaking-openapi.result }}
+          EVENT_RESULT: ${{ needs.eventos.result }}
           DEP_RESULT: ${{ needs.dependency-review.result }}
         run: |
-          test "$CONTRACT_RESULT" = "success"
-
-          test "$BREAK_RESULT" = "success" ||           test "$BREAK_RESULT" = "skipped"
-
-          test "$DEP_RESULT" = "success" ||           test "$DEP_RESULT" = "skipped"
+          test "$EVENT_RESULT" = "success"
+          test "$DEP_RESULT" = "success" || test "$DEP_RESULT" = "skipped"

@@ -1,9 +1,13 @@
-# Claude Code — Contracts
+# Claude Code — Kafka
 
-Antes de cambiar un contrato:
+Este repositorio contiene los esquemas de eventos (`events/`), los topics (`topics/`) y el despliegue de Kafka (`deploy/`).
 
-1. identificar proveedor/productor;
-2. identificar consumidores;
-3. clasificar compatibilidad;
-4. evitar breaking changes silenciosos;
+Antes de cambiar un evento:
+
+1. identificar el productor y los consumidores;
+2. clasificar compatibilidad;
+3. evitar breaking changes silenciosos (versión nueva del evento en paralelo);
+4. mantener `topics/topics.yaml` alineado con `events/`;
 5. documentar versión e impacto.
+
+No incluir lógica de negocio.
