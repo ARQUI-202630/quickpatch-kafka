@@ -1,0 +1,35 @@
+# Kafka en modo KRaft (un nodo, sin ZooKeeper) y Kafka UI. Lo escribe deploy-kafka.yml en VM6 (producción) y VM7 (QA).
+# Las variables vienen del inventario de infrastructure/ansible del repositorio quickpatch.
+services:
+  kafka:
+    image: {{ images.kafka }}
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://{{ ansible_host }}:9092,CONTROLLER://127.0.0.1:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://{{ ansible_host }}:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@127.0.0.1:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      # Los topics se crean de forma explícita desde topics/topics.yaml (hallazgo de POC-BE-001).
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_RETENTION_HOURS: {{ kafka_retencion_horas }}
+      KAFKA_HEAP_OPTS: "{{ kafka_heap }}"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+  kafka-ui:
+    image: {{ images.kafka_ui }}
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: 8080
+      KAFKA_CLUSTERS_0_NAME: quickpatch
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: {{ ansible_host }}:9092
+    depends_on: [kafka]
+volumes:
+  kafka-data:
