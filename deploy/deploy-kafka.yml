@@ -1,0 +1,44 @@
+# Apache Kafka en modo KRaft (sin ZooKeeper) + Kafka UI de producción (VM6) y de QA (VM7), con el mismo playbook
+# (ADR-022, sección 5.2), y los topics de topics/topics.yaml.
+# Se ejecuta desde infrastructure/ansible del repositorio quickpatch, que trae este repo como submódulo en apps/kafka:
+#   ./ap playbooks/deploy-kafka.yml
+# Kafka UI escucha en la IP de la VM pero el firewall no abre el 8080: se entra por túnel SSH
+# (ssh -L 8080:<IP de VM6>:8080 estudiante@<IP de VM6>).
+- name: Mensajería
+  hosts: messaging:qa_mensajeria
+  vars:
+    dir: "{{ stack_dir }}/kafka"
+    kafka_topics_sh: "docker compose -f {{ dir }}/compose.yml exec -T kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server {{ ansible_host }}:9092"
+    topics: "{{ (lookup('ansible.builtin.file', '../topics/topics.yaml') | from_yaml).topics }}"
+  tasks:
+    - name: Carpeta
+      ansible.builtin.file: { path: "{{ dir }}", state: directory, mode: "0750" }
+
+    - name: Compose de Kafka
+      ansible.builtin.template:
+        src: compose.yml.j2
+        dest: "{{ dir }}/compose.yml"
+        mode: "0640"
+
+    - name: Levantar Kafka y Kafka UI
+      community.docker.docker_compose_v2: { project_src: "{{ dir }}", state: present }
+
+    - name: Esperar a que el broker responda
+      ansible.builtin.command: "{{ kafka_topics_sh }} --list"
+      register: broker
+      retries: 12
+      delay: 5
+      until: broker.rc == 0
+      changed_when: false
+
+    # --if-not-exists: un topic que ya existe no se toca. Cambiar particiones o retención de un topic existente
+    # se hace a mano con kafka-topics.sh --alter / kafka-configs.sh (y se refleja en topics.yaml).
+    - name: Topics de topics/topics.yaml
+      ansible.builtin.command: >-
+        {{ kafka_topics_sh }} --create --if-not-exists --topic {{ item.name }}
+        --partitions {{ item.partitions }} --replication-factor {{ item.replicationFactor }}
+        --config retention.ms={{ item.retentionHours * 3600000 }}
+      loop: "{{ topics }}"
+      loop_control: { label: "{{ item.name }}" }
+      register: creados
+      changed_when: "'Created topic' in creados.stdout"
