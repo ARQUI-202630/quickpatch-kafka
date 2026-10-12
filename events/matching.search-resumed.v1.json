@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/matching.search-resumed.v1.json",
+  "title": "matching.search-resumed v1",
+  "description": "Una solicitud en espera vuelve a buscar técnico porque apareció un posible candidato (RN-M10, SCRUM-29 criterio 3, SCRUM-33 criterio 4). Productor: Matching Service. Consumidores: ServiceRequest Service (pasa la solicitud de en_espera a buscando_tecnico) y Communication Service. Topic: matching.search-resumed; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "matching.search-resumed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "matching-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "trigger"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "trigger": {
+          "enum": [
+            "disponibilidad",
+            "cobertura",
+            "aprobacion",
+            "liberacion",
+            "barrido"
+          ],
+          "description": "Qué disparó el reintento (DD V4 8.4.2)."
+        }
+      }
+    }
+  }
+}

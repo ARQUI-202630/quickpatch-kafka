@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/matching.no-technician-available.v1.json",
+  "title": "matching.no-technician-available v1",
+  "description": "Se agotaron los candidatos para la solicitud sin relajar el criterio de elegibilidad (RN-M4, RN-M9, AC9-E4). Productor: Matching Service. Consumidores: ServiceRequest Service (pasa la solicitud a en_espera) y Communication Service (avisa al cliente). Topic: matching.no-technician-available; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "matching.no-technician-available"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "matching-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "attemptsCount"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "attemptsCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Ofertas realizadas antes de quedar en espera."
+        }
+      }
+    }
+  }
+}

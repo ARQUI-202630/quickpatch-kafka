@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/matching.offer-created.v1.json",
+  "title": "matching.offer-created v1",
+  "description": "Matching ofreció una solicitud a un técnico elegible (RN-M9); la oferta vence en expiresAt (RN-M8, SCRUM-30). Productor: Matching Service. Consumidor: Communication Service (notifica al técnico; SAD ADR-023). Topic: matching.offer-created; clave del mensaje: data.serviceRequestId. No lleva la dirección ni datos del cliente (RN-SR13).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "matching.offer-created"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "matching-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "attemptId",
+        "technicianId",
+        "expiresAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "attemptId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "matching_attempts.id; es el attemptId de POST /v1/matching/offers/{attemptId}/accept."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/matching.technician-assigned.v1.json",
+  "title": "matching.technician-assigned v1",
+  "description": "Un técnico aceptó la oferta (RN-M4, SCRUM-30). Productor: Matching Service. Consumidores: ServiceRequest Service (guarda technician_id y assigned_at y pasa la solicitud a asignado; SCRUM-91) y Communication Service (avisa al cliente). Topic: matching.technician-assigned; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "matching.technician-assigned"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "matching-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "attemptId",
+        "technicianId",
+        "assignedAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "attemptId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "assignedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
