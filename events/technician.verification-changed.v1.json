@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/technician.verification-changed.v1.json",
+  "title": "technician.verification-changed v1",
+  "description": "El administrador del tenant aprobó, rechazó o suspendió a un técnico o proveedor (RF-19, RF-20, SCRUM-39, SCRUM-40, DD V4 8.3.13). Productor: Identity Service. Consumidores: Matching Service (actualiza la copia de verification_status en technician_availability; si pasa a aprobado dispara RN-M10) y Communication Service (avisa al técnico). Topic: technician.verification-changed; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección (ADR-017), así que el consumidor puede crear la fila si todavía no procesó technician.registered, y descarta el evento si ya tiene un updatedAt más reciente.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "technician.verification-changed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "identity-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technicianId",
+        "specialtyId",
+        "previousStatus",
+        "verificationStatus",
+        "updatedAt"
+      ],
+      "properties": {
+        "technicianId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "specialtyId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Especialidad vigente del técnico (estado completo de la proyección, ADR-017)."
+        },
+        "previousStatus": {
+          "enum": [
+            "pendiente",
+            "aprobado",
+            "rechazado",
+            "suspendido"
+          ]
+        },
+        "verificationStatus": {
+          "enum": [
+            "pendiente",
+            "aprobado",
+            "rechazado",
+            "suspendido"
+          ],
+          "description": "Estado nuevo."
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500,
+          "description": "Motivo del rechazo o la suspensión; null al aprobar."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento del cambio en Identity; versión de la proyección (ADR-017)."
+        }
+      }
+    }
+  }
+}

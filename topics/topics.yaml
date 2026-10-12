@@ -18,3 +18,54 @@ topics:
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
+
+  # Incremento del técnico (Sprint 4, DD V4). Los eventos del técnico usan technicianId como clave y
+  # una partición: son pocos y llevan el estado completo con updatedAt (ADR-017). Los de matching usan
+  # serviceRequestId como clave, con las mismas 3 particiones que service-request.created.
+  - name: technician.registered
+    schema: events/technician.registered.v1.json
+    producer: identity-service
+    consumers: [matching-service, communication-service]
+    partitions: 1
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: technician.verification-changed
+    schema: events/technician.verification-changed.v1.json
+    producer: identity-service
+    consumers: [matching-service, communication-service]
+    partitions: 1
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: matching.offer-created
+    schema: events/matching.offer-created.v1.json
+    producer: matching-service
+    consumers: [communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: matching.technician-assigned
+    schema: events/matching.technician-assigned.v1.json
+    producer: matching-service
+    consumers: [service-request-service, communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: matching.no-technician-available
+    schema: events/matching.no-technician-available.v1.json
+    producer: matching-service
+    consumers: [service-request-service, communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: matching.search-resumed
+    schema: events/matching.search-resumed.v1.json
+    producer: matching-service
+    consumers: [service-request-service, communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168

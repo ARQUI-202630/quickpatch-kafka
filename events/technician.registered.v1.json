@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/technician.registered.v1.json",
+  "title": "technician.registered v1",
+  "description": "Un técnico o proveedor se registró y quedó pendiente de verificación (RF-02, SCRUM-22). Productor: Identity Service. Consumidores: Matching Service (crea su fila de technician_availability en no_disponible, con la especialidad y la copia del estado de verificación; P-01, DD V4 5.6) y Communication Service. Topic: technician.registered; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección del técnico y updatedAt como versión (ADR-017): el consumidor descarta el evento si ya tiene una versión más reciente. Se publica con Outbox (ADR-007); los consumidores son idempotentes por eventId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "technician.registered"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "identity-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technicianId",
+        "specialtyId",
+        "verificationStatus",
+        "updatedAt"
+      ],
+      "properties": {
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "users.id del técnico o proveedor."
+        },
+        "specialtyId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Categoría de servicio que atiende (Catalog, P-03)."
+        },
+        "providerId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Proveedor a cuyo equipo pertenece (P-02); null para técnicos independientes."
+        },
+        "verificationStatus": {
+          "enum": [
+            "pendiente",
+            "aprobado",
+            "rechazado",
+            "suspendido"
+          ],
+          "description": "Estado de verificación al registrarse: pendiente."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento del cambio en Identity; define qué versión de la proyección es la más reciente (ADR-017)."
+        }
+      }
+    }
+  }
+}
