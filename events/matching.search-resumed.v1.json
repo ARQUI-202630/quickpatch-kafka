@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/matching.search-resumed.v1.json",
   "title": "matching.search-resumed v1",
-  "description": "Una solicitud en espera vuelve a buscar técnico porque apareció un posible candidato (RN-M10, SCRUM-29 criterio 3, SCRUM-33 criterio 4). Productor: Matching Service. Consumidores: ServiceRequest Service (pasa la solicitud de en_espera a buscando_tecnico) y Communication Service. Topic: matching.search-resumed; clave del mensaje: data.serviceRequestId.",
+  "description": "Una solicitud en espera vuelve a buscar técnico porque apareció un posible candidato (RN-M10, SCRUM-29 criterio 3, SCRUM-33 criterio 4). Productor: Matching Service. Consumidores: ServiceRequest Service (pasa la solicitud de en_espera a buscando_tecnico) y Communication Service. Lleva clientId para que Communication avise al cliente sin consultar a otro servicio, como service-request.started, .cancelled y .completed (DD V4 8.4.2). Topic: matching.search-resumed; clave del mensaje: data.serviceRequestId.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -47,12 +47,18 @@
       "additionalProperties": false,
       "required": [
         "serviceRequestId",
+        "clientId",
         "trigger"
       ],
       "properties": {
         "serviceRequestId": {
           "type": "string",
           "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud; Communication lo usa para avisarle (ADR-023)."
         },
         "trigger": {
           "enum": [

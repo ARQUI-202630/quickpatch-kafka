@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/matching.technician-assigned.v1.json",
   "title": "matching.technician-assigned v1",
-  "description": "Un técnico aceptó la oferta (RN-M4, SCRUM-30). Productor: Matching Service. Consumidores: ServiceRequest Service (guarda technician_id y assigned_at y pasa la solicitud a asignado; SCRUM-91) y Communication Service (avisa al cliente). Topic: matching.technician-assigned; clave del mensaje: data.serviceRequestId.",
+  "description": "Un técnico aceptó la oferta (RN-M4, SCRUM-30). Productor: Matching Service. Consumidores: ServiceRequest Service (guarda technician_id y assigned_at y pasa la solicitud a asignado; SCRUM-91) y Communication Service (avisa al cliente). Lleva clientId para que Communication avise al cliente sin consultar a otro servicio, como service-request.started, .cancelled y .completed (DD V4 8.4.2). Topic: matching.technician-assigned; clave del mensaje: data.serviceRequestId.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -47,6 +47,7 @@
       "additionalProperties": false,
       "required": [
         "serviceRequestId",
+        "clientId",
         "attemptId",
         "technicianId",
         "assignedAt"
@@ -55,6 +56,11 @@
         "serviceRequestId": {
           "type": "string",
           "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud (claim sub con el que se creó); Communication lo usa para avisarle (ADR-023)."
         },
         "attemptId": {
           "type": "string",
