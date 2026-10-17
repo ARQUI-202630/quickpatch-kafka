@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.status-changed.v1.json",
+  "title": "service-request.status-changed v1",
+  "description": "La solicitud cambió de estado (DD 7.4). Lo publica el dueño del estado, ServiceRequest Service, por Outbox (ADR-007) en la misma transacción del cambio, y solo si lo aplicó: un evento de Matching viejo, repetido o que no corresponde al estado actual no produce este evento (SCRUM-466). No se publica al crear la solicitud, que ya publica service-request.created. Consumidor: Communication Service, que avisa al cliente y al técnico asignado por el canal en tiempo real (ADR-023). Lleva clientId y technicianId para que Communication avise sin consultar a otro servicio (DD 8.5). Topic: service-request.status-changed; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.status-changed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El del evento o la petición que originó el cambio."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "clientId",
+        "previousStatus",
+        "status",
+        "changedAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud; Communication lo usa para avisarle (ADR-023)."
+        },
+        "technicianId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Técnico asignado después del cambio; null o ausente si la solicitud no tiene técnico (por ejemplo, en_espera o buscando_tecnico)."
+        },
+        "previousStatus": {
+          "$ref": "#/definitions/status"
+        },
+        "status": {
+          "$ref": "#/definitions/status"
+        },
+        "changedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento en que ServiceRequest aplicó el cambio."
+        }
+      }
+    }
+  },
+  "definitions": {
+    "status": {
+      "enum": [
+        "buscando_tecnico",
+        "en_espera",
+        "asignado",
+        "cotizado",
+        "cotizacion_aceptada",
+        "en_progreso",
+        "completado",
+        "pagado",
+        "cancelado"
+      ],
+      "description": "Estado de la solicitud (DD 7.4, ServiceRequestStatus)."
+    }
+  }
+}
