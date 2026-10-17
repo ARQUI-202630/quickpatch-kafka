@@ -69,3 +69,14 @@ topics:
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
+
+  # Cambio de estado publicado por el dueño del estado (SCRUM-466): Communication avisa con él y no con
+  # los eventos de Matching, que ServiceRequest puede descartar por viejos. Misma clave y particiones
+  # que los demás eventos de la solicitud.
+  - name: service-request.status-changed
+    schema: events/service-request.status-changed.v1.json
+    producer: service-request-service
+    consumers: [communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168

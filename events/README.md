@@ -38,5 +38,8 @@ El sobre común debe mantenerse alineado con SDD y DD.
 |`matching.technician-assigned`|1|Matching|ServiceRequest, Communication|[matching.technician-assigned.v1.json](matching.technician-assigned.v1.json)|
 |`matching.no-technician-available`|1|Matching|ServiceRequest, Communication|[matching.no-technician-available.v1.json](matching.no-technician-available.v1.json)|
 |`matching.search-resumed`|1|Matching|ServiceRequest, Communication|[matching.search-resumed.v1.json](matching.search-resumed.v1.json)|
+|`service-request.status-changed`|1|ServiceRequest|Communication|[service-request.status-changed.v1.json](service-request.status-changed.v1.json)|
 
 Los eventos del técnico (`technician.*`) alimentan la réplica de Matching (P-01) y siguen el ADR-017: llevan el estado completo de la proyección y `updatedAt` como versión, y el consumidor descarta los cambios con un `updatedAt` más antiguo que el que ya tiene. Como son dos topics, el orden entre ellos no está garantizado: `technician.verification-changed` trae también `specialtyId` para que Matching pueda crear la fila aunque todavía no haya procesado `technician.registered`.
+
+`service-request.status-changed` lo publica ServiceRequest cada vez que aplica un cambio de estado, en la misma transacción (Outbox), y no lo publica si descarta el evento que lo habría causado (SCRUM-466). Así el aviso en tiempo real refleja la fuente de verdad: antes Communication avisaba a partir de los eventos de Matching y, si ServiceRequest descartaba uno por viejo (ADR-017), el aviso salía igual. La creación no lo publica: el aviso de `buscando_tecnico` sigue saliendo de `service-request.created`.
