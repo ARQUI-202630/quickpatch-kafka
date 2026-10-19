@@ -46,10 +46,12 @@ topics:
     replicationFactor: 1
     retentionHours: 168
 
+  # Communication ya no los consume: el aviso y el buzón de estado salen de service-request.status-changed
+  # (SCRUM-466, SCRUM-456).
   - name: matching.technician-assigned
     schema: events/matching.technician-assigned.v1.json
     producer: matching-service
-    consumers: [service-request-service, communication-service]
+    consumers: [service-request-service]
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
@@ -57,7 +59,7 @@ topics:
   - name: matching.no-technician-available
     schema: events/matching.no-technician-available.v1.json
     producer: matching-service
-    consumers: [service-request-service, communication-service]
+    consumers: [service-request-service]
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
@@ -65,7 +67,7 @@ topics:
   - name: matching.search-resumed
     schema: events/matching.search-resumed.v1.json
     producer: matching-service
-    consumers: [service-request-service, communication-service]
+    consumers: [service-request-service]
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
