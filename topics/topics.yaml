@@ -80,3 +80,13 @@ topics:
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
+
+  # Cancelación antes de iniciar el servicio (RF-36, SCRUM-472): Matching retira la oferta y libera al técnico.
+  # El aviso en tiempo real sale de service-request.status-changed, que se publica en la misma transacción.
+  - name: service-request.cancelled
+    schema: events/service-request.cancelled.v1.json
+    producer: service-request-service
+    consumers: [matching-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168

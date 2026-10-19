@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.cancelled.v1.json",
+  "title": "service-request.cancelled v1",
+  "description": "La solicitud se canceló antes de iniciar el servicio (RF-36, RN-SR7). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción de la cancelación, junto con service-request.status-changed (status = cancelado), que es el que usa Communication para el aviso en tiempo real. Consumidor: Matching Service, que marca la búsqueda y la oferta pendiente como canceladas, no ofrece la solicitud a más técnicos y devuelve a disponible al técnico asignado (RN-M5, RN-M6). El motivo es un dato del usuario: los consumidores no lo escriben en los logs. Topic: service-request.cancelled; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.cancelled"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición de cancelación, o el del evento que la originó cuando cancela el sistema (RN-Q6, RN-Q7)."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "clientId",
+        "cancelledByType",
+        "reason",
+        "cancelledAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud."
+        },
+        "technicianId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Técnico asignado al cancelar; null o ausente si la solicitud no tenía técnico. Matching lo devuelve a disponible (RN-M6)."
+        },
+        "cancelledByType": {
+          "enum": [
+            "cliente",
+            "admin_tenant",
+            "sistema"
+          ],
+          "description": "Quién canceló (RN-SR8). sistema: cotización sin respuesta o cotizaciones rechazadas (RN-Q6, RN-Q7)."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Motivo de la cancelación (RF-36)."
+        },
+        "cancelledAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento en que ServiceRequest aplicó la cancelación."
+        }
+      }
+    }
+  }
+}
