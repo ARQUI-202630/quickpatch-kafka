@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.started.v1.json",
+  "title": "service-request.started v1",
+  "description": "El técnico asignado inició el servicio (RF-14, RN-SR6, DD 8.4). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción, junto con service-request.status-changed (status = en_progreso). Consumidor previsto en el DD: Communication Service, para avisar al cliente; hoy ese aviso sale de service-request.status-changed y Communication todavía no se suscribe a este topic. Topic: service-request.started; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.started"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que inició el servicio."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "clientId",
+        "technicianId",
+        "startedAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico asignado que inició el servicio."
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento en que la solicitud pasó a en_progreso."
+        }
+      }
+    }
+  }
+}

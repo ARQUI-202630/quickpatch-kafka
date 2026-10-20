@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.completed.v1.json",
+  "title": "service-request.completed v1",
+  "description": "El técnico asignado completó el servicio con al menos una evidencia (RF-15, RN-SR3, RN-E1, DD 8.3.11). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción, junto con service-request.status-changed (status = completado). Consumidores: Matching Service, que devuelve al técnico a disponible (RN-M6), y Payments Service, que crea el pago pendiente con el total y el técnico (RN-P4) cuando exista. Topic: service-request.completed; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.completed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que completó el servicio."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "clientId",
+        "technicianId",
+        "quoteId",
+        "totalAmount",
+        "completedAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud; es quien paga."
+        },
+        "companyId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Empresa cliente cuando la solicitud es de tipo empresa (RF-08); null o ausente en hogar."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico que hizo el servicio. Matching lo libera (RN-M6)."
+        },
+        "quoteId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cotización aceptada (RN-Q4)."
+        },
+        "totalAmount": {
+          "type": "string",
+          "pattern": "^\\d{1,10}\\.\\d{2}$",
+          "description": "Total de la cotización aceptada en pesos colombianos, con dos decimales, como texto. Es el monto del pago (RN-P4)."
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento en que la solicitud pasó a completado."
+        }
+      }
+    }
+  }
+}
