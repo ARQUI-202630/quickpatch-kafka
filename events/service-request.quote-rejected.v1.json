@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.quote-rejected.v1.json",
+  "title": "service-request.quote-rejected v1",
+  "description": "El cliente rechazó la cotización (RF-35, RN-Q3, DD 8.3.8). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción, junto con service-request.status-changed (status = asignado, o cancelado con la tercera, RN-Q7, que publica además service-request.cancelled). Consumidor: Communication Service, que avisa al técnico que debe emitir otra cotización si le quedan. No lleva el motivo del rechazo: el técnico lo ve en GET /v1/service-requests/{id}/quotes. Topic: service-request.quote-rejected; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.quote-rejected"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que emitió, aceptó o rechazó la cotización."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "quoteId",
+        "technicianId",
+        "remainingQuotes"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "quoteId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico asignado; Communication lo usa para avisarle."
+        },
+        "remainingQuotes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Cotizaciones que el técnico todavía puede emitir; 0 con la tercera, que cancela la solicitud (RN-Q7)."
+        }
+      }
+    }
+  }
+}

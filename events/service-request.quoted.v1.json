@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.quoted.v1.json",
+  "title": "service-request.quoted v1",
+  "description": "El técnico asignado emitió una cotización (RF-34, RN-Q1, DD 8.3.7). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción, junto con service-request.status-changed (status = cotizado). Consumidor: Communication Service, que avisa al cliente que tiene una cotización por responder, con el total y el vencimiento (ADR-023, ADR-024). Topic: service-request.quoted; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.quoted"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que emitió, aceptó o rechazó la cotización."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "quoteId",
+        "clientId",
+        "technicianId",
+        "totalAmount",
+        "expiresAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "quoteId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud; Communication lo usa para avisarle."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico asignado que emitió la cotización."
+        },
+        "quoteNumber": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "Posición de la cotización en la solicitud (RN-Q7)."
+        },
+        "totalAmount": {
+          "type": "string",
+          "pattern": "^\\d{1,10}\\.\\d{2}$",
+          "description": "Total de la cotización en pesos colombianos, con dos decimales, como texto (laborAmount + materialsAmount)."
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Límite para responder; después la solicitud se cancela (RN-Q6, RN-Q8)."
+        }
+      }
+    }
+  }
+}

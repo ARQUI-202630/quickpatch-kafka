@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.quote-accepted.v1.json",
+  "title": "service-request.quote-accepted v1",
+  "description": "El cliente aceptó la cotización (RF-35, RN-Q3, RN-Q4, DD 8.3.8). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción, junto con service-request.status-changed (status = cotizacion_aceptada). Consumidor: Communication Service, que avisa al técnico que puede iniciar el servicio (RN-SR6). El total es el monto que se cobrará en el pago. Topic: service-request.quote-accepted; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.quote-accepted"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que emitió, aceptó o rechazó la cotización."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "quoteId",
+        "technicianId",
+        "totalAmount"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "quoteId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico asignado; Communication lo usa para avisarle."
+        },
+        "totalAmount": {
+          "type": "string",
+          "pattern": "^\\d{1,10}\\.\\d{2}$",
+          "description": "Total de la cotización en pesos colombianos, con dos decimales, como texto (laborAmount + materialsAmount)."
+        }
+      }
+    }
+  }
+}
