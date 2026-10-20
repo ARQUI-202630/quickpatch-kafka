@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/catalog.category-changed.v1.json",
   "title": "catalog.category-changed v1",
-  "description": "Estado completo de una categoría después de crearla, modificarla, activarla o desactivarla (event-carried state transfer). Productor: Catalog Service. Consumidores: ServiceRequest Service (réplica local para validar la categoría al crear una solicitud, RN-SR10) y Matching Service (filtro por especialidad). Topic: catalog.category-changed; clave del mensaje: data.categoryId, para conservar el orden por categoría. El consumidor reemplaza su copia si data.updatedAt es más reciente que la que tiene; es idempotente por eventId.",
+  "description": "Estado completo de una categoría después de crearla, modificarla, activarla o desactivarla (event-carried state transfer). Productor: Catalog Service. Desde v0.8.0 lleva también description (opcional), para que ServiceRequest sirva la lista de categorías desde su réplica (ADR-025). Consumidores: ServiceRequest Service (réplica local para validar la categoría al crear una solicitud, RN-SR10) y Matching Service (filtro por especialidad). Topic: catalog.category-changed; clave del mensaje: data.categoryId, para conservar el orden por categoría. El consumidor reemplaza su copia si data.updatedAt es más reciente que la que tiene; es idempotente por eventId.",
   "type": "object",
   "additionalProperties": false,
   "required": ["eventId", "eventType", "eventVersion", "occurredAt", "correlationId", "tenantId", "producer", "data"],
@@ -21,6 +21,7 @@
       "properties": {
         "categoryId": { "type": "string", "format": "uuid" },
         "name": { "type": "string", "maxLength": 100 },
+        "description": { "type": ["string", "null"], "maxLength": 255, "description": "Descripción de la categoría; null si no tiene. Opcional: los productores anteriores a v0.8.0 no la envían." },
         "active": { "type": "boolean" },
         "updatedAt": { "type": "string", "format": "date-time", "description": "Momento del cambio; define qué versión de la categoría es la más reciente." }
       }
