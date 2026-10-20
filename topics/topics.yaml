@@ -92,3 +92,30 @@ topics:
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
+
+  # Cotización (RF-34, RF-35, SCRUM-486): Communication avisa al cliente de la cotización y al técnico de la
+  # respuesta. Van con status-changed en la misma transacción; el aviso sale de estos porque llevan el total y
+  # las cotizaciones que quedan, que status-changed no tiene.
+  - name: service-request.quoted
+    schema: events/service-request.quoted.v1.json
+    producer: service-request-service
+    consumers: [communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: service-request.quote-accepted
+    schema: events/service-request.quote-accepted.v1.json
+    producer: service-request-service
+    consumers: [communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: service-request.quote-rejected
+    schema: events/service-request.quote-rejected.v1.json
+    producer: service-request-service
+    consumers: [communication-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168

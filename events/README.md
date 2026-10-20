@@ -35,10 +35,14 @@ El sobre común debe mantenerse alineado con SDD y DD.
 |`technician.registered`|1|Identity|Matching, Communication|[technician.registered.v1.json](technician.registered.v1.json)|
 |`technician.verification-changed`|1|Identity|Matching, Communication|[technician.verification-changed.v1.json](technician.verification-changed.v1.json)|
 |`matching.offer-created`|1|Matching|Communication|[matching.offer-created.v1.json](matching.offer-created.v1.json)|
-|`matching.technician-assigned`|1|Matching|ServiceRequest, Communication|[matching.technician-assigned.v1.json](matching.technician-assigned.v1.json)|
-|`matching.no-technician-available`|1|Matching|ServiceRequest, Communication|[matching.no-technician-available.v1.json](matching.no-technician-available.v1.json)|
-|`matching.search-resumed`|1|Matching|ServiceRequest, Communication|[matching.search-resumed.v1.json](matching.search-resumed.v1.json)|
+|`matching.technician-assigned`|1|Matching|ServiceRequest|[matching.technician-assigned.v1.json](matching.technician-assigned.v1.json)|
+|`matching.no-technician-available`|1|Matching|ServiceRequest|[matching.no-technician-available.v1.json](matching.no-technician-available.v1.json)|
+|`matching.search-resumed`|1|Matching|ServiceRequest|[matching.search-resumed.v1.json](matching.search-resumed.v1.json)|
 |`service-request.status-changed`|1|ServiceRequest|Communication|[service-request.status-changed.v1.json](service-request.status-changed.v1.json)|
+|`service-request.cancelled`|1|ServiceRequest|Matching|[service-request.cancelled.v1.json](service-request.cancelled.v1.json)|
+|`service-request.quoted`|1|ServiceRequest|Communication|[service-request.quoted.v1.json](service-request.quoted.v1.json)|
+|`service-request.quote-accepted`|1|ServiceRequest|Communication|[service-request.quote-accepted.v1.json](service-request.quote-accepted.v1.json)|
+|`service-request.quote-rejected`|1|ServiceRequest|Communication|[service-request.quote-rejected.v1.json](service-request.quote-rejected.v1.json)|
 
 Los eventos del técnico (`technician.*`) alimentan la réplica de Matching (P-01) y siguen el ADR-017: llevan el estado completo de la proyección y `updatedAt` como versión, y el consumidor descarta los cambios con un `updatedAt` más antiguo que el que ya tiene. Como son dos topics, el orden entre ellos no está garantizado: `technician.verification-changed` trae también `specialtyId` para que Matching pueda crear la fila aunque todavía no haya procesado `technician.registered`.
 
