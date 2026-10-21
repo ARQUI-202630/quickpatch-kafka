@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/payment.rejected.v1.json",
+  "title": "payment.rejected v1",
+  "description": "La pasarela rechazó el pago, o no respondió y la conciliación lo cerró como rechazado (AC9-E5). Lo publica Payments Service por Outbox (ADR-007). La solicitud sigue en completado y el cliente puede reintentar (RN-SR5): ServiceRequest no cambia el estado. Topic: payment.rejected; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "payment.rejected"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición de pago o, si lo cerró la conciliación, uno nuevo."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "payments-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paymentId",
+        "serviceRequestId",
+        "clientId",
+        "technicianId",
+        "amount",
+        "rejectedAt"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Pago (tabla payments)."
+        },
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Solicitud pagada; también es la clave del mensaje."
+        },
+        "clientId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Cliente dueño de la solicitud."
+        },
+        "companyId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uuid",
+          "description": "Empresa cliente si la solicitud es de una empresa (RN-P6); null o ausente en hogar."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico que hizo el servicio."
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^\\d{1,10}\\.\\d{2}$",
+          "description": "Total cobrado en pesos colombianos, con dos decimales, como texto (RN-P3)."
+        },
+        "reasonCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 50,
+          "description": "Motivo del rechazo de la pasarela: fondos_insuficientes o pasarela_sin_respuesta con la pasarela simulada (ADR-009)."
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
