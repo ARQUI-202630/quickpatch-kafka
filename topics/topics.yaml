@@ -131,11 +131,29 @@ topics:
     replicationFactor: 1
     retentionHours: 168
 
-  # completed: Matching libera al técnico (RN-M6). Payments lo consumirá para crear el pago (RN-P4).
+  # completed: Matching libera al técnico (RN-M6) y Payments crea el pago pendiente (RN-P4, SCRUM-42).
   - name: service-request.completed
     schema: events/service-request.completed.v1.json
     producer: service-request-service
-    consumers: [matching-service]
+    consumers: [matching-service, payments-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  # Pago (SCRUM-42, pasarela simulada del ADR-009). Clave serviceRequestId, como los eventos de la solicitud.
+  # ServiceRequest pasa a pagado con approved (RN-SR4); rejected no cambia el estado (RN-SR5).
+  - name: payment.approved
+    schema: events/payment.approved.v1.json
+    producer: payments-service
+    consumers: [service-request-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: payment.rejected
+    schema: events/payment.rejected.v1.json
+    producer: payments-service
+    consumers: [service-request-service]
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
