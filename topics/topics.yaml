@@ -34,3 +34,11 @@ topics:
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
+
+  - name: tenant.status-changed
+    schema: events/tenant.status-changed.v1.json
+    producer: identity-service
+    consumers: [service-request-service]
+    partitions: 1
+    replicationFactor: 1
+    retentionHours: 168
