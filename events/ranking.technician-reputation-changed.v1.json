@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/ranking.technician-reputation-changed.v1.json",
+  "title": "ranking.technician-reputation-changed v1",
+  "description": "Cambió la reputación de un técnico (ADR-027, decisión 4; AC9-E2; DEP-04 del DD). Lo publica Ranking Service por Outbox en la misma transacción en que suma una calificación. Lleva el estado completo de la reputación, con changedAt como versión (ADR-017). Consumidor: Identity Service, que lo proyecta en technician_profiles (average_rating, rating_count y low_reputation) y descarta los eventos con un changedAt igual o anterior al último aplicado. Topic: ranking.technician-reputation-changed; clave del mensaje: data.technicianId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "ranking.technician-reputation-changed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El del evento service-request.rated que causó el cambio."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "ranking-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "technicianId",
+        "averageRating",
+        "ratingCount",
+        "lowReputation",
+        "changedAt"
+      ],
+      "properties": {
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico cuya reputación cambió."
+        },
+        "averageRating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Promedio de las calificaciones, redondeado a un decimal (NUMERIC(2,1), como technician_profiles.average_rating)."
+        },
+        "ratingCount": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cantidad de calificaciones del técnico."
+        },
+        "lowReputation": {
+          "type": "boolean",
+          "description": "5 o más calificaciones con promedio menor a 3.0 (AC9-E2). No suspende al técnico: decide el Admin (RF-20)."
+        },
+        "changedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento del cambio; es la versión de la reputación (ADR-017)."
+        }
+      }
+    }
+  }
+}

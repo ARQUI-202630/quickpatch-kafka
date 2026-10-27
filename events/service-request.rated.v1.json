@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://quickpatch.internal/contracts/events/service-request.rated.v1.json",
+  "title": "service-request.rated v1",
+  "description": "El dueño de la solicitud pagada la calificó (RF-12, RN-R1 a RN-R3, DD 8.4, ADR-027). Lo publica ServiceRequest Service por Outbox (ADR-007) en la misma transacción que la fila de ratings. El comentario no viaja: Ranking no lo necesita y así no sale de ServiceRequest. Consumidor: Ranking Service, que suma la calificación a la reputación del técnico una sola vez por eventId y por serviceRequestId. Topic: service-request.rated; clave del mensaje: data.serviceRequestId.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "service-request.rated"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición que calificó."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "producer": {
+      "const": "service-request-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "serviceRequestId",
+        "technicianId",
+        "score",
+        "ratedAt"
+      ],
+      "properties": {
+        "serviceRequestId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Solicitud calificada; cada una se califica una sola vez (RN-R2)."
+        },
+        "technicianId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Técnico que atendió la solicitud."
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Puntaje de 1 a 5 (RN-R1)."
+        },
+        "ratedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento en que se guardó la calificación."
+        }
+      }
+    }
+  }
+}

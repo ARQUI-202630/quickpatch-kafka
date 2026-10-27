@@ -47,6 +47,8 @@ El sobre común debe mantenerse alineado con SDD y DD.
 |`service-request.completed`|1|ServiceRequest|Matching, Payments|[service-request.completed.v1.json](service-request.completed.v1.json)|
 |`payment.approved`|1|Payments|ServiceRequest|[payment.approved.v1.json](payment.approved.v1.json)|
 |`payment.rejected`|1|Payments|ServiceRequest|[payment.rejected.v1.json](payment.rejected.v1.json)|
+|`service-request.rated`|1|ServiceRequest|Ranking|[service-request.rated.v1.json](service-request.rated.v1.json)|
+|`ranking.technician-reputation-changed`|1|Ranking|Identity|[ranking.technician-reputation-changed.v1.json](ranking.technician-reputation-changed.v1.json)|
 
 Los eventos del técnico (`technician.*`) alimentan la réplica de Matching (P-01) y siguen el ADR-017: llevan el estado completo de la proyección y `updatedAt` como versión, y el consumidor descarta los cambios con un `updatedAt` más antiguo que el que ya tiene. Como son dos topics, el orden entre ellos no está garantizado: `technician.verification-changed` trae también `specialtyId` para que Matching pueda crear la fila aunque todavía no haya procesado `technician.registered`.
 
