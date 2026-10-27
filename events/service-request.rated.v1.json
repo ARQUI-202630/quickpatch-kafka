@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "service-request.rated",
+  "description": "Cliente calificó un servicio completado. Productor: ServiceRequest. Consumidor: Ranking (actualiza reputación técnico).",
+  "type": "object",
+  "properties": {
+    "serviceRequestId": { "type": "string", "format": "uuid" },
+    "technicianId": { "type": "string", "format": "uuid" },
+    "score": { "type": "integer", "minimum": 1, "maximum": 5 },
+    "ratedAt": { "type": "string", "format": "date-time" }
+  },
+  "required": ["serviceRequestId", "technicianId", "score", "ratedAt"],
+  "additionalProperties": false
+}

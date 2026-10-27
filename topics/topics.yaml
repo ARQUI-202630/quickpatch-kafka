@@ -18,3 +18,19 @@ topics:
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
+
+  - name: service-request.rated
+    schema: events/service-request.rated.v1.json
+    producer: service-request-service
+    consumers: [ranking-service]
+    partitions: 3
+    replicationFactor: 1
+    retentionHours: 168
+
+  - name: ranking.technician-reputation-changed
+    schema: events/ranking.technician-reputation-changed.v1.json
+    producer: ranking-service
+    consumers: [identity-service]
+    partitions: 1
+    replicationFactor: 1
+    retentionHours: 168

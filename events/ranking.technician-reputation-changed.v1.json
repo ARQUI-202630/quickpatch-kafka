@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ranking.technician-reputation-changed",
+  "description": "Reputación del técnico cambió. Productor: Ranking. Consumidor: Identity (actualiza promedio en perfil).",
+  "type": "object",
+  "properties": {
+    "technicianId": { "type": "string", "format": "uuid" },
+    "averageRating": { "type": "number", "minimum": 0, "maximum": 5, "multipleOf": 0.1 },
+    "ratingCount": { "type": "integer", "minimum": 0 },
+    "lowReputation": { "type": "boolean" },
+    "changedAt": { "type": "string", "format": "date-time" }
+  },
+  "required": ["technicianId", "averageRating", "ratingCount", "lowReputation", "changedAt"],
+  "additionalProperties": false
+}
