@@ -1,13 +1,76 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "tenant.status-changed",
-  "description": "El estado de un tenant cambió. Productor: Identity. Consumidor: ServiceRequest (valida disponibilidad según estado del tenant).",
+  "$id": "https://quickpatch.internal/contracts/events/tenant.status-changed.v1.json",
+  "title": "tenant.status-changed v1",
+  "description": "El administrador de la plataforma activó o desactivó un tenant (RF-21, RN-T1, PATCH /v1/platform/tenants/{id} de identity 1.2.0, SCRUM-508). Productor: Identity Service, por Outbox (ADR-007) en la misma transacción que el cambio de tenants.status; si el estado no cambia (repetir el mismo estado no es error) no publica. Consumidor: ServiceRequest Service, que guarda el estado en una réplica local y rechaza crear solicitudes de un tenant inactivo con 422 tenant-inactivo (RN-T1, DD 8.3.3). Topic: tenant.status-changed; clave del mensaje: data.tenantId. Lleva el estado completo (ADR-017): el consumidor descarta el evento si ya tiene un updatedAt más reciente.",
   "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "eventType",
+    "eventVersion",
+    "occurredAt",
+    "correlationId",
+    "tenantId",
+    "producer",
+    "data"
+  ],
   "properties": {
-    "tenantId": { "type": "string", "format": "uuid" },
-    "status": { "type": "string", "enum": ["activo", "inactivo", "suspendido"] },
-    "changedAt": { "type": "string", "format": "date-time" }
-  },
-  "required": ["tenantId", "status", "changedAt"],
-  "additionalProperties": false
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Id del registro en outbox_events; clave de idempotencia."
+    },
+    "eventType": {
+      "const": "tenant.status-changed"
+    },
+    "eventVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El de la petición del administrador de la plataforma."
+    },
+    "tenantId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "El tenant que cambió de estado (no el del administrador de la plataforma)."
+    },
+    "producer": {
+      "const": "identity-service"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "status",
+        "updatedAt"
+      ],
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Igual al tenantId del sobre; clave del mensaje."
+        },
+        "status": {
+          "enum": [
+            "activo",
+            "inactivo"
+          ],
+          "description": "Estado nuevo del tenant (DD 5.1, RN-T1)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Momento del cambio en Identity; versión de la proyección (ADR-017)."
+        }
+      }
+    }
+  }
 }

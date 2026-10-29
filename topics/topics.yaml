@@ -176,9 +176,8 @@ topics:
     replicationFactor: 1
     retentionHours: 168
 
-  # Cambio de estado del tenant (SCRUM-508). Clave tenantId, una partición: evento global del tenant,
-  # pocas instancias (un tenant cambia de estado raramente). ServiceRequest valida que el tenant esté activo
-  # al crear una solicitud (RN-SR12, RN-T1).
+  # Activación o desactivación de un tenant (SCRUM-508, RN-T1). Clave data.tenantId; una partición porque
+  # cambia muy pocas veces. ServiceRequest rechaza crear solicitudes de un tenant inactivo (422 tenant-inactivo).
   - name: tenant.status-changed
     schema: events/tenant.status-changed.v1.json
     producer: identity-service
