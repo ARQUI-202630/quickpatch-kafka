@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/technician.registered.v1.json",
   "title": "technician.registered v1",
-  "description": "Un técnico o proveedor se registró y quedó pendiente de verificación (RF-02, SCRUM-22). Productor: Identity Service. Consumidores: Matching Service (crea su fila de technician_availability en no_disponible, con la especialidad y la copia del estado de verificación; P-01, DD V4 5.6) y Communication Service. Topic: technician.registered; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección del técnico y updatedAt como versión (ADR-017): el consumidor descarta el evento si ya tiene una versión más reciente. Se publica con Outbox (ADR-007); los consumidores son idempotentes por eventId.",
+  "description": "Un técnico o proveedor se registró y quedó pendiente de verificación (RF-02, SCRUM-22). Productor: Identity Service. Consumidores: Matching Service (crea su fila de technician_availability en no_disponible, con la especialidad y la copia del estado de verificación; P-01, DD V4 5.6), Communication Service y, desde payments 1.2.0, Payments Service (guarda technicianId y providerId para listar al proveedor los pagos de su equipo, SCRUM-500; los técnicos registrados antes de la retención del topic se cargan una vez desde Identity). Topic: technician.registered; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección del técnico y updatedAt como versión (ADR-017): el consumidor descarta el evento si ya tiene una versión más reciente. Se publica con Outbox (ADR-007); los consumidores son idempotentes por eventId.",
   "type": "object",
   "additionalProperties": false,
   "required": [

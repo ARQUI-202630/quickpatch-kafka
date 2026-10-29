@@ -25,7 +25,8 @@ topics:
   - name: technician.registered
     schema: events/technician.registered.v1.json
     producer: identity-service
-    consumers: [matching-service, communication-service]
+    # Payments guarda technicianId -> providerId para los pagos del equipo del proveedor (payments 1.2.0, SCRUM-500).
+    consumers: [matching-service, communication-service, payments-service]
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
