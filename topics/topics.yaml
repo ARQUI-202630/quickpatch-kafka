@@ -6,7 +6,7 @@ topics:
   - name: service-request.created
     schema: events/service-request.created.v1.json
     producer: service-request-service
-    consumers: [matching-service, communication-service]
+    consumers: [matching-service, communication-service, actors-service]
     partitions: 3
     replicationFactor: 1
     retentionHours: 168
@@ -26,7 +26,7 @@ topics:
     schema: events/technician.registered.v1.json
     producer: identity-service
     # Payments guarda technicianId -> providerId para los pagos del equipo del proveedor (payments 1.2.0, SCRUM-500).
-    consumers: [matching-service, communication-service, payments-service]
+    consumers: [matching-service, communication-service, payments-service, actors-service]
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
@@ -34,7 +34,7 @@ topics:
   - name: technician.verification-changed
     schema: events/technician.verification-changed.v1.json
     producer: identity-service
-    consumers: [matching-service, communication-service]
+    consumers: [matching-service, communication-service, actors-service]
     partitions: 1
     replicationFactor: 1
     retentionHours: 168
