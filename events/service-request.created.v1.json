@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/service-request.created.v1.json",
   "title": "service-request.created v1",
-  "description": "Una solicitud de servicio se creó en estado buscando_tecnico. Productor: ServiceRequest Service. Consumidores: Matching Service (inicia el matching) y Communication Service (confirma al cliente). Topic: service-request.created; clave del mensaje: data.serviceRequestId. Se publica mediante Outbox (ADR-007); los consumidores son idempotentes por eventId (processed_events).",
+  "description": "Una solicitud de servicio se creó en estado buscando_tecnico. Productor: ServiceRequest Service. Consumidores: Matching Service (inicia el matching) y Communication Service (confirma al cliente). Topic: service-request.created; clave del mensaje: data.serviceRequestId. Se publica mediante Outbox (ADR-007); los consumidores son idempotentes por eventId (processed_events). Desde actors 0.2.0, Actors Service también lo consume: cuenta las solicitudes de cada cliente, sin guardar la descripción ni la ubicación (SCRUM-640).",
   "type": "object",
   "additionalProperties": false,
   "required": ["eventId", "eventType", "eventVersion", "occurredAt", "correlationId", "tenantId", "producer", "data"],

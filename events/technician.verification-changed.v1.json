@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quickpatch.internal/contracts/events/technician.verification-changed.v1.json",
   "title": "technician.verification-changed v1",
-  "description": "El administrador del tenant aprobó, rechazó o suspendió a un técnico o proveedor (RF-19, RF-20, SCRUM-39, SCRUM-40, DD V4 8.3.13). Productor: Identity Service. Consumidores: Matching Service (actualiza la copia de verification_status en technician_availability; si pasa a aprobado dispara RN-M10) y Communication Service (avisa al técnico). Topic: technician.verification-changed; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección (ADR-017), así que el consumidor puede crear la fila si todavía no procesó technician.registered, y descarta el evento si ya tiene un updatedAt más reciente.",
+  "description": "El administrador del tenant aprobó, rechazó o suspendió a un técnico o proveedor (RF-19, RF-20, SCRUM-39, SCRUM-40, DD V4 8.3.13). Productor: Identity Service. Consumidores: Matching Service (actualiza la copia de verification_status en technician_availability; si pasa a aprobado dispara RN-M10) y Communication Service (avisa al técnico). Topic: technician.verification-changed; clave del mensaje: data.technicianId. Lleva el estado completo de la proyección (ADR-017), así que el consumidor puede crear la fila si todavía no procesó technician.registered, y descarta el evento si ya tiene un updatedAt más reciente. Desde actors 0.2.0, Actors Service también lo consume: actualiza el estado del técnico y los aprobados del equipo del proveedor (SCRUM-640).",
   "type": "object",
   "additionalProperties": false,
   "required": [
